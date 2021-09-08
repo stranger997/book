@@ -6,6 +6,8 @@
 #include <vector>
 #include "catalog.h"
 #include <cstring>
+#include <fstream>
+#include <filesystem>
 #define L 48
 #define W 10
 #define K 3
@@ -275,15 +277,34 @@ void display_book()
 
 
      }
+}
 
-// DELETE
-    // node* temphead=head;
-    // while (temphead!=NULL)
-    // {
-    //     cout<<temphead->value << " ";
-    //     temphead=temphead->next;
-    // }
+void write_to_txt()
+{
+    string bookname;
+    cout << "Enter a name for your book:" << endl;
+    cin >> bookname;
+    bookname+=".txt";
+    ofstream out_file (bookname);
+    if (!out_file)
+    {
+        cerr << "ERROR: Could not create file" << endl;
+    }
 
+    node* temphead=head;
+    for (int i=0; i<pages; i++)
+     {
+        out_file << "Page " << i+1 << endl;
+        for (int j=0; j<48;j++)
+        {
+            for (int k=0; k<10; k++)
+                {
+                    out_file << temphead->value << " ";
+                    temphead=temphead->next;
+                }
+            out_file << endl;
+        }
+     }
 
 }
 
@@ -295,6 +316,7 @@ int main ()
     get_keys();
     place_words();
     display_book();
+    write_to_txt();
 
     return 0;
 }
