@@ -10,7 +10,7 @@ using namespace std;
 
 void create_catalog(string catalogue[2048])
 {
-    char all_words[] = 
+    string all_words = 
     "abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid "
     "acoustic acquire across act action actor actress actual adapt add addict address adjust admit adult advance advice aerobic affair "
     "afford afraid again age agent agree ahead aim air airport aisle alarm album alcohol alert alien all alley allow almost alone alpha "
@@ -96,16 +96,23 @@ void create_catalog(string catalogue[2048])
     "wine wing wink winner winter wire wisdom wise wish witness wolf woman wonder wood wool word work world worry worth wrap wreck wrestle wrist write wrong yard year yellow you " 
     "young youth zebra zero zone zoo";
 
+    string buffer=all_words;
 
-    catalogue[0]=strtok(all_words, " ");
-
-
-
-    for (int i=1; i<2048; i++)
+    for (int i=0; i<2048; i++)
     {
-        catalogue[i]=strtok(NULL, " ");
-
-
+        for (int j=0; j<=8; j++)
+        {
+            if (isspace(buffer[0])==0)
+            {
+                catalogue[i]+=buffer[0];
+                buffer.erase(0,1);
+            }
+            else 
+            {
+                buffer.erase(0,1);
+                break;
+            }   
+        }
     }
 
 
