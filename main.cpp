@@ -159,6 +159,12 @@ void AddControls(HWND hWnd)
 	CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 516, 0, 40, 20, hWnd, NULL, NULL, NULL);
 	CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 556, 0, 40, 20, hWnd, NULL, NULL, NULL);
 
+	//PagesLabel
+	CreateWindowW(L"static", L"Pages: ", WS_VISIBLE | WS_CHILD, 512, 264, 100, 20, hWnd, NULL, NULL, NULL);
+
+	//PagesInput
+	CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 566, 260, 20, 20, hWnd, NULL, NULL, NULL);
+
 	//Left Key Label
 	CreateWindowW(L"static", L"  1: ", WS_VISIBLE | WS_CHILD, 20, 20, 40, 20, hWnd, NULL, NULL, NULL);
 	CreateWindowW(L"static", L"  2: ", WS_VISIBLE | WS_CHILD, 20, 40, 40, 20, hWnd, NULL, NULL, NULL);
@@ -301,7 +307,7 @@ void AddControls(HWND hWnd)
 	CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 566, 238, 20, 20, hWnd, NULL, NULL, NULL);
 
 	//Button
-	HWND hBut = CreateWindowW(L"Button", L"Create", WS_VISIBLE | WS_CHILD | BS_BITMAP, 512, 280, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
+	HWND hBut = CreateWindowW(L"Button", L"Create", WS_VISIBLE | WS_CHILD | BS_BITMAP, 512, 284, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
 	SendMessageW(hBut, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hCreateImage);
 
 	//Output
