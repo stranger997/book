@@ -10,7 +10,7 @@
 #include <filesystem>
 #define L 48
 #define W 10
-#define K 3
+#define K 24
 
 using namespace std;
 
@@ -279,6 +279,7 @@ void display_book()
      }
 }
 
+//Creation of txt file
 void write_to_txt()
 {
     string bookname;
@@ -294,7 +295,7 @@ void write_to_txt()
     node* temphead=head;
     for (int i=0; i<pages; i++)
      {
-        out_file << "Page " << i+1 << endl;
+        // out_file << "Page " << i+1 << endl; // REENABLE
         for (int j=0; j<48;j++)
         {
             for (int k=0; k<10; k++)
@@ -308,7 +309,11 @@ void write_to_txt()
 
 }
 
-
+/* 
+Main function first of all calls the "create catalog" function, which basically forms an array of all the BIP words.
+Subsequently, it calls the functions generate_book, get_keys, place_words, display_book, write_to_text in that order.
+Later iterations should have options for
+*/
 int main ()
 {
     create_catalog(BIP_words);
