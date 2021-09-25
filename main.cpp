@@ -42,7 +42,6 @@ struct node
 
 }*head;
 
-
 //Declaration of: 
 //pages: number of pages in generated book
 //BIP_words: catalogue of available words. Found in catalog.h
@@ -68,8 +67,6 @@ void insert_at_end(int page, int line, int word_loc, string new_word)
 	temp->is_in_password = 0;
 	temp->next = NULL;
 
-
-
 	if (head == NULL)
 	{
 		head = temp;
@@ -79,17 +76,13 @@ void insert_at_end(int page, int line, int word_loc, string new_word)
 		node* temphead;
 		temphead = head;
 
-
 		while (temphead->next != NULL)
 		{
 			temphead = temphead->next;
 		}
 
 		temphead->next = temp;
-
 	}
-
-
 }
 
 //wIN
@@ -102,6 +95,7 @@ void generate_book();
 void write_to_txt();
 
 //Define handlers
+HWND hname;
 HWND hnpages;
 HWND hOut;
 
@@ -161,18 +155,19 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			char hpages[3];
 			GetWindowText(hnpages, hpages, 3);
-
 			int pages = atoi(hpages);
 
+			char booknamec[100];
+			GetWindowText(hname, booknamec, 100);
 
 
-			if (strcmp(hpages, "") == 0)
+			if (strcmp(hpages, "") == 0 || strcmp(booknamec, "") == 0)
 			{
 				val = MessageBoxW(hWnd, L"Missing values", NULL, MB_ABORTRETRYIGNORE | MB_ICONWARNING);
 				switch (val)
 				{
 				case IDABORT:
-					val = MessageBoxW(NULL, L"Windows failed to prevent infection", L"Virus Warning", MB_OK | MB_ICONERROR);
+					val = MessageBoxW(NULL, L"Please insert how many pages you want", L"Warning", MB_OK | MB_ICONERROR);
 					if (val == IDOK)
 					{
 						DestroyWindow(hWnd);
@@ -184,8 +179,10 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 					break;
 				}
 			}
-
-			strcpy(out, hpages);
+			strcpy(out, "The book is named \"");
+			strcat(out, booknamec);
+			strcat(out, "\" and it has ");
+			strcat(out, hpages);
 			strcat(out, " pages. ");
 
 			create_catalog(BIP_words);
@@ -196,7 +193,6 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			break;
 		}
-
 
 		break;
 	case WM_CREATE:
@@ -218,6 +214,7 @@ void generate_book()
 	char hpages[3];
 	GetWindowText(hnpages, hpages, 3);
 	int pages = atoi(hpages);
+
 	int pp = -1; //page counter
 	int ll = -1; //line counter
 	int ww = -1; //word counter
@@ -245,15 +242,13 @@ void write_to_txt()
 	char hpages[3];
 	GetWindowText(hnpages, hpages, 3);
 	int pages = atoi(hpages);
+	
+	char booknamec[100];
+	GetWindowText(hname, booknamec, 100);
 	string bookname;
-	cout << "Enter a name for your book:" << endl;
-	cin >> bookname;
+	bookname += booknamec;
 	bookname += ".txt";
 	ofstream out_file(bookname);
-	if (!out_file)
-	{
-		cerr << "ERROR: Could not create file" << endl;
-	}
 
 	node* temphead = head;
 	for (int i = 0; i < pages; i++)
@@ -269,9 +264,7 @@ void write_to_txt()
 			out_file << endl;
 		}
 	}
-
 }
-
 
 void AddMenus(HWND hWnd)
 {
@@ -281,12 +274,10 @@ void AddMenus(HWND hWnd)
 
 	AppendMenu(hSubMenu, MF_STRING, NULL, "iTEM");
 
-
 	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_NEW, "New Book");
 	AppendMenu(hFileMenu, MF_POPUP, (UINT_PTR)hSubMenu, "Open :P");
 	AppendMenu(hFileMenu, MF_SEPARATOR, NULL, NULL);
 	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_EXIT, "kILL");
-
 
 	AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "File");
 	AppendMenu(hMenu, MF_STRING, NULL, "Help");
@@ -301,9 +292,13 @@ void loadImages()
 
 void AddControls(HWND hWnd)
 {
-	//PagesLabel
+	//Bookname Label
+	CreateWindowW(L"static", L"Name your book:", WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 10, 120, 20, hWnd, NULL, NULL, NULL);
+	//Pages Label
 	CreateWindowW(L"static", L"Pages: ", WS_VISIBLE | WS_CHILD, 512, 264, 100, 20, hWnd, NULL, NULL, NULL);
 
+	//Bookname Input
+	hname = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 140, 7, 100, 20, hWnd, NULL, NULL, NULL);
 	//PagesInput
 	hnpages = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 566, 260, 20, 20, hWnd, NULL, NULL, NULL);
 
@@ -311,7 +306,7 @@ void AddControls(HWND hWnd)
 	HWND hBut = CreateWindowW(L"Button", L"Create", WS_VISIBLE | WS_CHILD | BS_BITMAP, 512, 284, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
 	SendMessageW(hBut, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hCreateImage);
 
-	//Output
+	//On screen output 
 	hOut = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL, 20, 264, 480, 140, hWnd, NULL, NULL, NULL);
 
 }
