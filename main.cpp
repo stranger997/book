@@ -92,6 +92,7 @@ void AddMenus(HWND);
 void AddControls(HWND);
 void loadImages();
 void generate_book();
+void place_words();
 void write_to_txt(); 
 void get_keys();
 
@@ -211,8 +212,9 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			strcat(out, " pages. ");
 
 			create_catalog(BIP_words);
-			get_keys();
 			generate_book();
+			get_keys();
+			place_words();
 			write_to_txt();
 
 			SetWindowText(hOut, out);
@@ -265,8 +267,44 @@ void generate_book()
 
 void get_keys()
 {
-	//create user key list from input
 	MessageBeep(MB_ICONINFORMATION);
+}
+
+//Placing user's words in the nodelist
+void place_words()
+{
+	int pageno;
+	int lineno;
+	int wordno;
+	string chosen_word;
+
+	node* temphead = head;
+
+	for (int i = 0; i < K; i++)
+	{
+		pageno = wallet_key[i].page_loc;
+		lineno = wallet_key[i].line_loc;
+		wordno = wallet_key[i].word_loc;
+		chosen_word = wallet_key[i].word;
+
+		while (temphead->page_no != pageno)
+		{
+			temphead = temphead->next;
+			if (temphead == NULL) temphead = head;
+		}
+		while (temphead->line_no != lineno)
+		{
+			temphead = temphead->next;
+			if (temphead == NULL) temphead = head;
+		}
+		while (temphead->word_no != wordno)
+		{
+			temphead = temphead->next;
+			if (temphead == NULL) temphead = head;
+		}
+		temphead->value = chosen_word;
+		temphead->is_in_password = 1;
+	}
 }
 
 void write_to_txt()
