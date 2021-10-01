@@ -267,6 +267,28 @@ void generate_book()
 
 void get_keys()
 {
+	cw = 1;
+	char key1c[10]; //10 char array declaration
+	GetWindowText(hKey1, key1c, 10); //parse values from handle to char array
+	string key1; //declare string
+	key1 += key1c; //add values to string
+	wallet_key[cw].word = key1;
+
+	char page1c[3]; //3 char array declaration
+	GetWindowText(hKey1, page1c, 3); //parse values from handle to char array
+	int page1 = atoi(page1c); //array to int
+	wallet_key[cw].page_loc = page1;
+
+	char line1c[3]; //3 char array declaration
+	GetWindowText(hKey1, line1c, 3); //parse values from handle to char array
+	int line1 = atoi(line1c); //array to int
+	wallet_key[cw].line_loc = line1;
+
+	char word1c[3]; //3 char array declaration
+	GetWindowText(hKey1, word1c, 3); //parse values from handle to char array
+	int word1 = atoi(word1c); //array to int
+	wallet_key[cw].word_loc = word1;
+
 	MessageBeep(MB_ICONINFORMATION);
 }
 
