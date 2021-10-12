@@ -161,31 +161,6 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			MessageBoxW(NULL, L"Got keys successfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
 			newbook.fetch_keys(key1c, page1c, line1c, word1c);
 			MessageBoxW(NULL, L"fetched key succesfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
-			
-
-		// Error codes:
-		//1: 2 or more words in the same place
-		//2: 1 or more words not in catalogue
-		//3: 1 or more words have blank fields
-			switch (newbook.errorflag())
-			{	
-				case 1: 
-				MessageBoxW(NULL, L"Error: 2 or more words in the same place!!", L"Warning", MB_OK | MB_ICONEXCLAMATION);
-				break;
-
-				case 2:
-				MessageBoxW(NULL, L"Error: 1 or more words not found in catalogue!!!", L"Warning", MB_OK | MB_ICONEXCLAMATION);
-				break;
-
-				case 3:
-				MessageBoxW(NULL, L"Error: 2 or more words in the same place!!", L"Warning", MB_OK | MB_ICONEXCLAMATION);
-				break;
-
-				default:
-				break;
-			}
-
-
 			newbook.place_words();
 			MessageBoxW(NULL, L"Placed words successfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
 			newbook.write_to_txt();
