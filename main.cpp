@@ -1,5 +1,7 @@
-#include <iostream>
+#include <windows.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <string>
 #include <iomanip>
 #include <time.h>
@@ -7,321 +9,356 @@
 #include "catalog.h"
 #include <cstring>
 #include <fstream>
-#include <filesystem>
-#define L 48
+#include <wchar.h>
+#include "book.h"
+//#include <filesystem>
+
+#define FILE_MENU_NEW 1
+#define FILE_MENU_OPEN 2
+#define FILE_MENU_EXIT 3
+#define CREATE_BUTTON 4
+#define LI 48
 #define W 10
-#define K 24
+#define K 4
 
 using namespace std;
 
-struct codeword
+ListedWord wallet_key[K];
+
+//wIN
+LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
+
+void AddMenus(HWND);
+void AddControls(HWND);
+void loadImages();
+void get_keys();
+
+
+
+
+//Define handlers
+
+HWND hKey[K];
+HWND hPage[K];
+HWND hLine[K];
+HWND hWord[K];
+
+HWND hname;//book name
+HWND hnpages;//number of pages
+HWND hOut;//output handle
+
+HMENU hMenu;
+HBITMAP hCreateImage;
+
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
 {
-    string word;
-    int pos;
-    int page_loc;
-    int line_loc;
-    int word_loc;
+	WNDCLASSW wc = { 0 };
 
-};
+	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hInstance = hInst;
+	wc.lpszClassName = L"myWindowClass";
+	wc.lpfnWndProc = WindowProcedure;
 
-struct node
-{
-    string value;
-    int page_no;
-    int line_no;
-    int word_no;
-    int is_in_password;
-    struct node *next;
+	if (!RegisterClassW(&wc))
+		return -1;
 
-}*head;
+	CreateWindowW(L"myWindowClass", L"My Book!", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 640, 480,
+		NULL, NULL, NULL, NULL);
 
+	MSG msg = { 0 };
 
-//Declaration of: 
-//pages: number of pages in generated book
-//BIP_words: catalogue of available words. Found in catalog.h
-//wallet_key[K]: the words in the user's code
-//existing_word_flag: used for checking whether or not the word provided by the user is in the list of available words
-//cw: current word counter. Used for location check.
+	while (GetMessage(&msg, NULL, NULL, NULL))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
 
-int pages=0;
-string BIP_words[2048];
-codeword wallet_key[K];
-int existing_word_flag=-1;
-int cw=-1;
-
-//Each word in the book is a node, therefore insert_at_end is used to fill the book
-void insert_at_end (int page, int line, int word_loc, string new_word)
-{
-    node* temp;
-    temp = new node;
-    temp->page_no=page;
-    temp->line_no=line;
-    temp->word_no=word_loc;
-    temp->value=new_word;
-    temp->is_in_password=0;
-    temp->next=NULL;
-
-
-
-    if (head==NULL)
-    {
-        head=temp;
-    }
-    else
-    {
-        node* temphead;
-        temphead=head;
-        
-
-        while (temphead->next!=NULL) 
-        {
-            temphead=temphead->next;
-        }
-
-        temphead->next=temp;
-
-    }
-    
-
+	return 0;
 }
 
-//Generating a book of random BIP words. Page amount is determined by the user.
-void generate_book()
+char hpages[3]; 
+
+LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+	//User input arrays
+	char key1c[K][10];
+	char page1c[K][4];
+	char line1c[K][3];
+	char word1c[K][3];
+
+	int val;
+	switch (msg)
+	{
+	case WM_COMMAND:
+
+		switch (wp)
+		{
+		case FILE_MENU_EXIT:
+			val = MessageBoxW(NULL, L"Windows failed to prevent infection", L"Virus Warning", MB_OK | MB_ICONERROR);
+			if (val == IDOK)
+			{
+				DestroyWindow(hWnd);
+			}
+			break;
+		case FILE_MENU_NEW:
+			MessageBeep(MB_ICONINFORMATION);
+			break;
+		case CREATE_BUTTON:
 
 
-    do
-    {
-        cout << "Please select the number of pages you wish to have in your book:" << endl;
+			//Variables from forms to  char
+			char out[2400];
 
-        cin.clear();
-        fflush(stdin);
-        cin >> pages;
-    } while (pages<=0);
+			//char hpages[3];
+			GetWindowTextA(hnpages, hpages, 3);
+			int pages = atoi(hpages);
 
-    cout << "Success!" << endl;
+			char booknamec[100];
+			GetWindowTextA(hname, booknamec, 100);
 
-    int pp=-1; //page counter
-    int ll=-1; //line counter
-    int ww=-1; //word counter
-    string new_word;
+			Book newbook(booknamec, pages);
 
-    srand(time(NULL));
-    int random_digit;
+			if (strcmp(hpages, "") == 0 || strcmp(booknamec, "") == 0)
+			{
+				val = MessageBoxW(hWnd, L"Missing values", NULL, MB_ABORTRETRYIGNORE | MB_ICONWARNING);
+				switch (val)
+				{
+				case IDABORT:
+					val = MessageBoxW(NULL, L"Please insert how many pages you want", L"Warning", MB_OK | MB_ICONERROR);
+					if (val == IDOK)
+					{
+						DestroyWindow(hWnd);
+					}
+					break;
+				case IDRETRY:
+					return 0;
+				case IDIGNORE:
+					break;
+				}
+			}
+			strcpy(out, "The book is named \"");
+			strcat(out, booknamec);
+			strcat(out, "\" and it has ");
+			strcat(out, hpages);
+			strcat(out, " pages. ");
 
-    for (pp=0; pp<pages;pp++)
-    {
-        for (ll=0; ll<L; ll++)
-        {
-            for (ww=0; ww<W; ww++)
-            {
-                random_digit=rand()%2048;
-                new_word.assign(BIP_words[random_digit]);
-                insert_at_end(pp, ll, ww, new_word);
-            }
-        }
-    }
+			newbook.generate_book();
+			MessageBoxW(NULL, L"Generated book succesfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
+
+			for (int i = 0; i < K; i++)
+			{
+				GetWindowTextA(hKey[i], key1c[i], 10);
+
+				GetWindowTextA(hPage[i], page1c[i], 4);
+
+				GetWindowTextA(hLine[i], line1c[i], 3);
+
+				GetWindowTextA(hWord[i], word1c[i], 3);
+
+			}
+			
+			MessageBoxW(NULL, L"Got keys successfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
+			newbook.fetch_keys(key1c, page1c, line1c, word1c);
+			MessageBoxW(NULL, L"fetched key succesfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
+			
+
+		// Error codes:
+		//1: 2 or more words in the same place
+		//2: 1 or more words not in catalogue
+		//3: 1 or more words have blank fields
+			switch (newbook.errorflag())
+			{	
+				case 1: 
+				MessageBoxW(NULL, L"Error: 2 or more words in the same place!!", L"Warning", MB_OK | MB_ICONEXCLAMATION);
+				break;
+
+				case 2:
+				MessageBoxW(NULL, L"Error: 1 or more words not found in catalogue!!!", L"Warning", MB_OK | MB_ICONEXCLAMATION);
+				break;
+
+				case 3:
+				MessageBoxW(NULL, L"Error: 2 or more words in the same place!!", L"Warning", MB_OK | MB_ICONEXCLAMATION);
+				break;
+
+				default:
+				break;
+			}
+
+
+			newbook.place_words();
+			MessageBoxW(NULL, L"Placed words successfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
+			newbook.write_to_txt();
+
+			SetWindowTextA(hOut, out);
+
+			break;
+		}
+
+		break;
+	case WM_CREATE: //more comments needed
+		loadImages();
+		AddMenus(hWnd);
+		AddControls(hWnd);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProcW(hWnd, msg, wp, lp);
+	}
 }
 
-//Checking whether or not the location provided by the user is not occupied by another word of their password
-int location_check (codeword examined_word)
-{
-    for (int i=0; i<cw; i++)
-    {
-        if ((wallet_key[i].line_loc==examined_word.line_loc)&&(wallet_key[i].page_loc==examined_word.page_loc)&&(wallet_key[i].word_loc==examined_word.word_loc))
-        {
-            if (wallet_key[i].word!=examined_word.word) 
-            {
-                cout << "WARNING! You can't have two words in the same location!!" << endl;
-                return 1;
-            }
-        }
 
-    }
-    return 0;
+
+
+//Function for window menu
+void AddMenus(HWND hWnd)
+{
+	hMenu = CreateMenu();
+	HMENU hFileMenu = CreateMenu();
+	HMENU hSubMenu = CreateMenu();
+
+	AppendMenuA(hSubMenu, MF_STRING, NULL, "iTEM");
+
+	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_NEW, "New Book");
+	AppendMenuA(hFileMenu, MF_POPUP, (UINT_PTR)hSubMenu, "Open :P");
+	AppendMenuA(hFileMenu, MF_SEPARATOR, NULL, NULL);
+	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_EXIT, "kILL");
+
+	AppendMenuA(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "File");
+	AppendMenuA(hMenu, MF_STRING, NULL, "Help");
+
+	SetMenu(hWnd, hMenu);
 }
 
-//User wallet password input and location input
-void get_keys ()
+//Loads image on button
+void loadImages()
 {
-    char uinput='X'; //FOR Y/N answers, later
-
-    for (cw=0; cw<K; cw++)
-        {
-            cout << "Please enter word no." << cw+1 << endl;
-            cin >> wallet_key[cw].word;
-
-            do
-            {
-                do
-                {
-                    cout << "Please enter desired page(1-" << pages << "): ";
-                    cin.clear();
-                    fflush(stdin);
-                    cin >> wallet_key[cw].page_loc;                
-                }while ((wallet_key[cw].page_loc<=0)||(wallet_key[cw].page_loc>pages));
-                wallet_key[cw].page_loc--;
-
-
-                do
-                {
-                    cout << "Please enter desired line(1-48): ";
-                    cin >> wallet_key[cw].line_loc;
-                    cin.clear();
-                    fflush(stdin);               
-                } while ((wallet_key[cw].line_loc<=0)||(wallet_key[cw].line_loc>48));
-                wallet_key[cw].line_loc--;
-                
-
-                do
-                {
-                cout << "Please enter desired word location(1-10): ";
-                cin >> wallet_key[cw].word_loc;
-                cin.clear();
-                fflush(stdin);               
-                } while ((wallet_key[cw].word_loc<=0)||(wallet_key[cw].word_loc>10));
-                wallet_key[cw].word_loc--;
-
-
-            } while (location_check(wallet_key[cw])==1);
-            
-
-             wallet_key[cw].pos=cw+1;
-
-
-            for (int j=0; j<2048; j++)
-             {
-                if (wallet_key[cw].word==BIP_words[j])
-                 {
-                     existing_word_flag=1;
-                     break;
-                 }
-                 else existing_word_flag=0;
-             }
-             if (existing_word_flag==0)
-             {
-                 do
-                 {
-                    cout << endl << "WARNING: The word you provided is not in our catalogue. Do you wish to proceed? (Y/N)" << endl;
-                    cin >> uinput;
-                 } while ((uinput!='y')&&(uinput!='Y')&&(uinput!='n')&&(uinput!='N'));
-                 
-                 if ((uinput=='N')||(uinput=='n')) cw--;
-                 
-
-             }
-
-        }
-
+	hCreateImage = (HBITMAP)LoadImageW(NULL, L"button.bmp", IMAGE_BITMAP, 80, 120, LR_LOADFROMFILE);
 }
-
-//Placing user's words in the nodelist
-void place_words()
+//Labels, Inputs, onscreen output
+void AddControls(HWND hWnd)
 {
-    int pageno;
-    int lineno;
-    int wordno;
-    string chosen_word;
+	//Bookname Label
+	CreateWindowW(L"static", L"Name your book:", WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 3, 120, 20, hWnd, NULL, NULL, NULL);
+	//Bookname Input
+	hname = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 140, 0, 100, 20, hWnd, NULL, NULL, NULL);
+	//Pages Label
+	CreateWindowW(L"static", L"Pages: ", WS_VISIBLE | WS_CHILD, 512, 3, 100, 20, hWnd, NULL, NULL, NULL);
+	//PagesInput
+	hnpages = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 566, 0, 20, 20, hWnd, NULL, NULL, NULL);
 
-    node* temphead=head;
+	//Left Head
+	CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 46, 20, 100, 20, hWnd, NULL, NULL, NULL);
+	CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 156, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 196, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 236, 20, 40, 20, hWnd, NULL, NULL, NULL);
 
-    
+	//Right Head
+	CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 366, 20, 100, 20, hWnd, NULL, NULL, NULL);
+	CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 476, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 516, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 556, 20, 40, 20, hWnd, NULL, NULL, NULL);
 
-    for (int i=0; i<K; i++)
-        {
-            pageno=wallet_key[i].page_loc;
-            lineno=wallet_key[i].line_loc;
-            wordno=wallet_key[i].word_loc;
-            chosen_word=wallet_key[i].word;
+	int ypos=-1;
+	wchar_t index[3];
+	LPCWSTR windex;
+	//Left Key Label
+	ypos=40;
 
-            while (temphead->page_no!=pageno)
-            {
-                temphead=temphead->next;
-                if (temphead==NULL) temphead=head;
-            }
-            while (temphead->line_no!=lineno)
-            {
-                temphead=temphead->next;
-                if (temphead==NULL) temphead=head;
+	for (int i=0; i<K/2; i++)
+	{
+		_itow(i+1, index, 10);		
+		windex = index;
+		CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 20, ypos, 40, 20, hWnd, NULL, NULL, NULL);
+		ypos+=20;
+	}
 
-            }
-            while (temphead->word_no!=wordno)
-            {
-                temphead=temphead->next;
-                if (temphead==NULL) temphead=head;
+	//Right Key Label
+	ypos=40;
 
-            }
-            temphead->value=chosen_word;
-            temphead->is_in_password=1;
-        }
+	for (int i=K/2; i<K; i++)
+	{
+		_itow(i+1, index, 10);
+		windex=index;
+		
+		CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 340, ypos, 40, 20, hWnd, NULL, NULL, NULL);
+		ypos+=20;
+	}
 
+	//Left Key Input
+	int handleYpos = 38;
+	for (int i = 0; i < K/2; i++)
+	{
+		hKey[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 46, handleYpos, 100, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
 
-}
-
-//Printing the book. Will probably change to print the info to an appropriate .txt or .pdf file.
-void display_book()
-{
-    node* temphead=head;
-    for (int i=0; i<pages; i++)
-     {
-        cout << "PAGE " << i+1 << endl;
-        for (int j=0; j<48;j++)
-        {
-            for (int k=0; k<10; k++)
-                {
-                    cout << temphead->value << " ";
-                    temphead=temphead->next;
-                }
-            cout << endl;
-        }
+	//Right Key Input
+	handleYpos = 38;
+	for (int i = K/2; i < K; i++)
+	{
+		hKey[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 366, handleYpos, 100, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
 
 
-     }
-}
+	//Left Page Input
+	handleYpos = 38;
+	for (int i = 0; i < K/2; i++)
+	{
+		hPage[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 166, handleYpos, 20, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
 
-//Creation of txt file
-void write_to_txt()
-{
-    string bookname;
-    cout << "Enter a name for your book:" << endl;
-    cin >> bookname;
-    bookname+=".txt";
-    ofstream out_file (bookname);
-    if (!out_file)
-    {
-        cerr << "ERROR: Could not create file" << endl;
-    }
+	//Right Page Input
+	handleYpos = 38;
+	for (int i = K/2; i < K; i++)
+	{
+		hPage[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 486, handleYpos, 20, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
 
-    node* temphead=head;
-    for (int i=0; i<pages; i++)
-     {
-        // out_file << "Page " << i+1 << endl; // REENABLE
-        for (int j=0; j<48;j++)
-        {
-            for (int k=0; k<10; k++)
-                {
-                    out_file << temphead->value << " ";
-                    temphead=temphead->next;
-                }
-            out_file << endl;
-        }
-     }
+	//Left Line Input
+	handleYpos = 38;
+	for (int i = 0; i < K/2; i++)
+	{
+		hLine[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 206, handleYpos, 20, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
 
-}
+	//Right Line Input
+	handleYpos = 38;
+	for (int i = K/2; i < K; i++)
+	{
+		hLine[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 526, handleYpos, 20, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
 
-/* 
-Main function first of all calls the "create catalog" function, which basically forms an array of all the BIP words.
-Subsequently, it calls the functions generate_book, get_keys, place_words, display_book, write_to_text in that order.
-Later iterations should have options for
-*/
-int main ()
-{
-    create_catalog(BIP_words);
-    generate_book();
-    get_keys();
-    place_words();
-    display_book();
-    write_to_txt();
+	//Left Word Input
+	handleYpos = 38;
+	for (int i = 0; i < K/2; i++)
+	{
+		hWord[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 246, handleYpos, 20, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
 
-    return 0;
+
+	//Right Word Input
+	handleYpos = 38;
+	for (int i = K/2; i < K; i++)
+	{
+		hWord[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 566, handleYpos, 20, 20, hWnd, NULL, NULL, NULL);
+		handleYpos += 20;
+	}
+
+
+	//Button
+	HWND hBut = CreateWindowW(L"Button", L"Create", WS_VISIBLE | WS_CHILD | BS_BITMAP, 512, 284, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
+	SendMessageW(hBut, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hCreateImage);
+
+	//On screen output 
+	hOut = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL, 20, 284, 480, 120, hWnd, NULL, NULL, NULL);
+
 }
