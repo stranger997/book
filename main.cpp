@@ -2,6 +2,7 @@
 #define UNICODE
 #endif 
 
+//includes
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,6 @@
 #include <fstream>
 #include <wchar.h>
 #include "book.h"
-//#include <filesystem>
 
 #define FILE_MENU_NEW 1
 #define FILE_MENU_OPEN 2
@@ -26,34 +26,25 @@
 #define K 4
 
 using namespace std;
-
 ListedWord wallet_key[K];
-
-//wIN
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
-
 void AddMenus(HWND);
 void AddControls(HWND);
 void loadImages();
-void get_keys();
-
-
-
+char hpages[3];
 
 //Define handlers
-
 HWND hKey[K];
 HWND hPage[K];
 HWND hLine[K];
 HWND hWord[K];
-
 HWND hname;//book name
 HWND hnpages;//number of pages
 HWND hOut;//output handle
-
 HMENU hMenu;
 HBITMAP hCreateImage;
 
+//Execute
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
 {
 	WNDCLASSW wc = { 0 };
@@ -67,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
 	if (!RegisterClassW(&wc))
 		return -1;
 
-	CreateWindowW(L"myWindowClass", L"My Book!", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 640, 480,
+	CreateWindowW(L"myWindowClass", L"My Book!", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 640, 480,
 		NULL, NULL, NULL, NULL);
 
 	MSG msg = { 0 };
@@ -81,8 +72,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
 	return 0;
 }
 
-char hpages[3];
-
+//Main Window Functionality
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	//User input arrays
@@ -99,7 +89,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		switch (wp)
 		{
 		case FILE_MENU_EXIT:
-			val = MessageBoxW(NULL, L"Windows failed to prevent infection", L"Virus Warning", MB_OK | MB_ICONERROR);
+			val = MessageBoxW(NULL, L"Program Terminate", L"Exit", MB_OK | MB_ICONERROR);
 			if (val == IDOK)
 			{
 				DestroyWindow(hWnd);
@@ -159,7 +149,6 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				GetWindowTextA(hLine[i], line1c[i], 3);
 
 				GetWindowTextA(hWord[i], word1c[i], 3);
-
 			}
 
 			MessageBoxW(NULL, L"Got keys successfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
@@ -188,34 +177,30 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	}
 }
 
-
-
-
-//Function for window menu
+//Window menu TOP BAR Functionality
 void AddMenus(HWND hWnd)
 {
 	hMenu = CreateMenu();
 	HMENU hFileMenu = CreateMenu();
-	HMENU hSubMenu = CreateMenu();
+//	HMENU hSubMenu = CreateMenu();
 
-	AppendMenuA(hSubMenu, MF_STRING, NULL, "iTEM");
-
-	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_NEW, "New Book");
-	AppendMenuA(hFileMenu, MF_POPUP, (UINT_PTR)hSubMenu, "Open :P");
-	AppendMenuA(hFileMenu, MF_SEPARATOR, NULL, NULL);
+//	AppendMenuA(hSubMenu, MF_STRING, NULL, "iTEM");
+//	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_NEW, "New Book");
+//	AppendMenuA(hFileMenu, MF_POPUP, (UINT_PTR)hSubMenu, "Open :P");
+//	AppendMenuA(hFileMenu, MF_SEPARATOR, NULL, NULL);
 	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_EXIT, "kILL");
-
 	AppendMenuA(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "File");
-	AppendMenuA(hMenu, MF_STRING, NULL, "Help");
+//	AppendMenuA(hMenu, MF_STRING, NULL, "Help");
 
 	SetMenu(hWnd, hMenu);
 }
 
-//Loads image on button
+//Loading Images on buttons etc
 void loadImages()
 {
 	hCreateImage = (HBITMAP)LoadImageW(NULL, L"button.bmp", IMAGE_BITMAP, 80, 120, LR_LOADFROMFILE);
 }
+
 //Labels, Inputs, onscreen output
 void AddControls(HWND hWnd)
 {
@@ -342,7 +327,8 @@ void AddControls(HWND hWnd)
 
 }
 
-/* OLD
+// OLD code temporarily
+/*
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
