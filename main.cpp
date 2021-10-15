@@ -18,7 +18,7 @@
 #include "book.h"
 
 #define FILE_MENU_NEW 1
-#define FILE_MENU_OPEN 2
+//#define FILE_MENU_OPEN 2
 #define FILE_MENU_EXIT 3
 #define NEXT_BUTTON 4
 #define CREATE_BUTTON 5
@@ -27,11 +27,17 @@
 #define K 4
 
 using namespace std;
+
+// Register the window class.
+const wchar_t CLASS_NAME[] = L"myWindowClass";
+//const wchar_t MENU_NAME[] = L"myMenuClass";
+
 ListedWord wallet_key[K];
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
 void AddMenus(HWND);
-void AddControls(HWND);
-void AddControls1(HWND);
+void fControls(HWND);
+void sControls(HWND);
+void advControls(HWND);
 void loadImages();
 char hpages[3];
 
@@ -46,22 +52,29 @@ HWND hOut;//output handle
 HMENU hMenu;
 HBITMAP hCreateImage;
 
-//Execute
+//Made them public, to allow one other function to hide or destroy them
+HWND hNBut;
+HWND hbnlabel;
+HWND hplabel;
+HWND hBut;
+
+// handle to current instance // handle to previous instance // address of command-line string // show-window type 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
 {
 	WNDCLASSW wc = { 0 };
 
+	// Register the main window class.
 	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hInstance = hInst;
-	wc.lpszClassName = L"myWindowClass";
+	wc.lpszClassName = CLASS_NAME;
 	wc.lpfnWndProc = WindowProcedure;
 
 	if (!RegisterClassW(&wc))
 		return -1;
 
-	CreateWindowW(L"myWindowClass", L"My Book!", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 640, 480,
-		NULL, NULL, NULL, NULL);
+	// Optional window styles. // Window class // Window text // Window style // Position and size // Parent window // Menu // Instance handle // Additional application data
+	CreateWindowW(CLASS_NAME, L"My Book!", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, 640, 480,                NULL,       NULL,        NULL,          NULL);
 
 	MSG msg = { 0 };
 
@@ -74,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
 	return 0;
 }
 
-//Main Window Functionality
+// handle to window // message identifier// first message parameter// second message parameter
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	//User input arrays
@@ -90,6 +103,10 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		switch (wp)
 		{
+		case FILE_MENU_NEW:
+			MessageBeep(MB_ICONINFORMATION);
+			break;
+
 		case FILE_MENU_EXIT:
 			val = MessageBoxW(NULL, L"Program Terminate", L"Exit", MB_OK | MB_ICONINFORMATION);
 			if (val == IDOK)
@@ -97,14 +114,11 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				DestroyWindow(hWnd);
 			}
 			break;
-		case FILE_MENU_NEW:
-			MessageBeep(MB_ICONINFORMATION);
-			break;
+
 		case NEXT_BUTTON:
-
-			AddControls(hWnd);
-
+			sControls(hWnd);
 			break;
+
 		case CREATE_BUTTON:
 
 			//Variables from forms to  char
@@ -174,7 +188,8 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	case WM_CREATE: //By the initial window creation executes
 		loadImages();
 		AddMenus(hWnd);
-		AddControls1(hWnd);
+		fControls(hWnd);
+		sControls(hWnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -192,9 +207,9 @@ void AddMenus(HWND hWnd)
 //	HMENU hSubMenu = CreateMenu();
 
 //	AppendMenuA(hSubMenu, MF_STRING, NULL, "iTEM");
-//	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_NEW, "New Book");
+	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_NEW, "New Book");
 //	AppendMenuA(hFileMenu, MF_POPUP, (UINT_PTR)hSubMenu, "Open :P");
-//	AppendMenuA(hFileMenu, MF_SEPARATOR, NULL, NULL);
+	AppendMenuA(hFileMenu, MF_SEPARATOR, NULL, NULL);
 	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_EXIT, "kILL");
 	AppendMenuA(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "File");
 //	AppendMenuA(hMenu, MF_STRING, NULL, "Help");
@@ -209,24 +224,37 @@ void loadImages()
 }
 
 //Labels, Inputs, onscreen output
-
-void AddControls1(HWND hWnd)
+void fControls(HWND hWnd)
 {
 	//nextButton
-	HWND hNBut = CreateWindow(L"button", L"Next", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 512, 284, 80, 120, hWnd, (HMENU)NEXT_BUTTON, NULL, NULL);
+	//hNBut = CreateWindow(L"button", L"Next", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 512, 284, 80, 120, hWnd, (HMENU)NEXT_BUTTON, NULL, NULL);
+	
+	//Load CheckBox
+	CreateWindow(TEXT("BUTTON"), TEXT("Advanced Settings"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 250, 0, 150, 20, hWnd, NULL, NULL, NULL);
 
 	//Bookname Label
-	CreateWindowW(L"static", L"Name your book:", WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 3, 120, 20, hWnd, NULL, NULL, NULL);
+	hbnlabel = CreateWindowW(L"static", L"Name your book:", WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 3, 120, 20, hWnd, NULL, NULL, NULL);
 	//Bookname Input
 	hname = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 140, 0, 100, 20, hWnd, NULL, NULL, NULL);
 	//Pages Label
-	CreateWindowW(L"static", L"Pages: ", WS_VISIBLE | WS_CHILD, 512, 3, 100, 20, hWnd, NULL, NULL, NULL);
+	hplabel = CreateWindowW(L"static", L"Pages: ", WS_VISIBLE | WS_CHILD, 512, 3, 100, 20, hWnd, NULL, NULL, NULL);
 	//PagesInput
 	hnpages = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 566, 0, 20, 20, hWnd, NULL, NULL, NULL);
 }
 
-void AddControls(HWND hWnd)
+void advControls(HWND) 
 {
+
+}
+
+void sControls(HWND hWnd)
+{
+//	DestroyWindow(hNBut);
+//	DestroyWindow(hbnlabel);
+//	DestroyWindow(hname);
+//	DestroyWindow(hplabel);
+//	DestroyWindow(hnpages);
+
 	//Left Head
 	CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 46, 20, 100, 20, hWnd, NULL, NULL, NULL);
 	CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 156, 20, 40, 20, hWnd, NULL, NULL, NULL);
@@ -332,7 +360,7 @@ void AddControls(HWND hWnd)
 	}
 
 	//createButton
-	HWND hBut = CreateWindowW(L"Button", L"Create", WS_VISIBLE | WS_CHILD | BS_BITMAP, 512, 284, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
+	hBut = CreateWindowW(L"Button", L"Create", WS_VISIBLE | WS_CHILD | BS_BITMAP, 512, 284, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
 	SendMessageW(hBut, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hCreateImage);
 
 	//On screen output 
