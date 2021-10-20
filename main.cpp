@@ -21,7 +21,8 @@
 //#define FILE_MENU_OPEN 2
 #define FILE_MENU_EXIT 3
 #define NEXT_BUTTON 4
-#define CREATE_BUTTON 5
+#define BACK_BUTTON 5
+#define CREATE_BUTTON 6
 #define LI 48
 #define W 10
 #define K 4
@@ -38,25 +39,36 @@ void AddMenus(HWND);
 void fControls(HWND);
 void sControls(HWND);
 void advControls(HWND);
-void loadImages();
 char hpages[3];
+char booknamec[100];
+char out[2400];
 
 //Define handlers
 HWND hKey[K];
 HWND hPage[K];
 HWND hLine[K];
 HWND hWord[K];
+HWND hLabel[K];
 HWND hname;//book name
 HWND hnpages;//number of pages
 HWND hOut;//output handle
+HWND hCBox;//checkbox
 HMENU hMenu;
-HBITMAP hCreateImage;
 
 //Made them public, to allow one other function to hide or destroy them
 HWND hNBut;
+HWND hBBut;
+HWND hCBut;
 HWND hbnlabel;
 HWND hplabel;
-HWND hBut;
+HWND label1;
+HWND label2;
+HWND label3;
+HWND label4;
+HWND label5;
+HWND label6;
+HWND label7;
+HWND label8;
 
 // handle to current instance // handle to previous instance // address of command-line string // show-window type 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
@@ -117,20 +129,76 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case NEXT_BUTTON:
 			sControls(hWnd);
+			GetWindowTextA(hname, booknamec, 100);
+			GetWindowTextA(hnpages, hpages, 3);
+			/*
+			if (key1c[i] == "" || page1c[i] == "" || line1c[i] == "" || word1c[i] = "")
+			{
+				for (int i = 0; i < K; i++)
+				{
+					SetWindowTextA(hKey[i], key1c[i]);
+
+					SetWindowTextA(hPage[i], page1c[i]);
+
+					SetWindowTextA(hLine[i], line1c[i]);
+
+					SetWindowTextA(hWord[i], word1c[i]);
+				}
+			}
+			*/
+
+			DestroyWindow(hNBut); 
+			DestroyWindow(hCBox);
+			DestroyWindow(hbnlabel);
+			DestroyWindow(hname);
+			DestroyWindow(hplabel);
+			DestroyWindow(hnpages);
+			//TerminateProcess(fControls, NULL);
 			break;
+
+		case BACK_BUTTON:
+			fControls(hWnd);
+			strcpy(out, booknamec);
+			SetWindowTextA(hname, out);
+			strcpy(out, hpages);
+			SetWindowTextA(hnpages, out);
+			for (int i = 0; i < K; i++)
+			{
+				GetWindowTextA(hKey[i], key1c[i], 10);
+
+				GetWindowTextA(hPage[i], page1c[i], 4);
+
+				GetWindowTextA(hLine[i], line1c[i], 3);
+
+				GetWindowTextA(hWord[i], word1c[i], 3);
+			}
+			for (int i = 0; i < K; i++)
+			{
+				DestroyWindow(hLabel[i]);
+				DestroyWindow(hKey[i]);
+				DestroyWindow(hPage[i]);
+				DestroyWindow(hLine[i]);
+				DestroyWindow(hWord[i]);
+			}
+			DestroyWindow(label1);
+			DestroyWindow(label2);
+			DestroyWindow(label3);
+			DestroyWindow(label4);
+			DestroyWindow(label5);
+			DestroyWindow(label6);
+			DestroyWindow(label7);
+			DestroyWindow(label8);
+			DestroyWindow(hCBut);
+			DestroyWindow(hBBut);
+			DestroyWindow(hOut);
+
+			break;			  
 
 		case CREATE_BUTTON:
 
-			//Variables from forms to  char
-			char out[2400];
-
 			//char hpages[3];
-			GetWindowTextA(hnpages, hpages, 3);
 			int pages = atoi(hpages);
-
-			char booknamec[100];
-			GetWindowTextA(hname, booknamec, 100);
-
+			
 			Book newbook(booknamec, pages);
 
 			if (strcmp(hpages, "") == 0 || strcmp(booknamec, "") == 0)
@@ -186,10 +254,8 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		break;
 	case WM_CREATE: //By the initial window creation executes
-		loadImages();
 		AddMenus(hWnd);
 		fControls(hWnd);
-		sControls(hWnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -217,21 +283,13 @@ void AddMenus(HWND hWnd)
 	SetMenu(hWnd, hMenu);
 }
 
-//Loading Images on buttons etc
-void loadImages()
-{
-	hCreateImage = (HBITMAP)LoadImageW(NULL, L"button.bmp", IMAGE_BITMAP, 80, 120, LR_LOADFROMFILE);
-}
-
 //Labels, Inputs, onscreen output
 void fControls(HWND hWnd)
 {
 	//nextButton
-	//hNBut = CreateWindow(L"button", L"Next", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 512, 284, 80, 120, hWnd, (HMENU)NEXT_BUTTON, NULL, NULL);
-	
+	hNBut = CreateWindow(L"button", L"Next", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 512, 284, 80, 120, hWnd, (HMENU)NEXT_BUTTON, NULL, NULL);
 	//Load CheckBox
-	CreateWindow(TEXT("BUTTON"), TEXT("Advanced Settings"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 250, 0, 150, 20, hWnd, NULL, NULL, NULL);
-
+	hCBox = CreateWindow(TEXT("BUTTON"), TEXT("Advanced Settings"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 250, 0, 150, 20, hWnd, NULL, NULL, NULL);
 	//Bookname Label
 	hbnlabel = CreateWindowW(L"static", L"Name your book:", WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 3, 120, 20, hWnd, NULL, NULL, NULL);
 	//Bookname Input
@@ -249,23 +307,17 @@ void advControls(HWND)
 
 void sControls(HWND hWnd)
 {
-//	DestroyWindow(hNBut);
-//	DestroyWindow(hbnlabel);
-//	DestroyWindow(hname);
-//	DestroyWindow(hplabel);
-//	DestroyWindow(hnpages);
-
 	//Left Head
-	CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 46, 20, 100, 20, hWnd, NULL, NULL, NULL);
-	CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 156, 20, 40, 20, hWnd, NULL, NULL, NULL);
-	CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 196, 20, 40, 20, hWnd, NULL, NULL, NULL);
-	CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 236, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	label1 = CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 46, 20, 100, 20, hWnd, NULL, NULL, NULL);
+	label2 = CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 156, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	label3 = CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 196, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	label4 = CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 236, 20, 40, 20, hWnd, NULL, NULL, NULL);
 
 	//Right Head
-	CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 366, 20, 100, 20, hWnd, NULL, NULL, NULL);
-	CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 476, 20, 40, 20, hWnd, NULL, NULL, NULL);
-	CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 516, 20, 40, 20, hWnd, NULL, NULL, NULL);
-	CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 556, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	label5 = CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 366, 20, 100, 20, hWnd, NULL, NULL, NULL);
+	label6 = CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 476, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	label7 = CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 516, 20, 40, 20, hWnd, NULL, NULL, NULL);
+	label8 = CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 556, 20, 40, 20, hWnd, NULL, NULL, NULL);
 
 	int ypos = -1;
 	wchar_t index[3];
@@ -277,7 +329,7 @@ void sControls(HWND hWnd)
 	{
 		_itow(i + 1, index, 10);
 		windex = index;
-		CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 20, ypos, 40, 20, hWnd, NULL, NULL, NULL);
+		hLabel[i] = CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 20, ypos, 40, 20, hWnd, NULL, NULL, NULL);
 		ypos += 20;
 	}
 
@@ -289,7 +341,7 @@ void sControls(HWND hWnd)
 		_itow(i + 1, index, 10);
 		windex = index;
 
-		CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 340, ypos, 40, 20, hWnd, NULL, NULL, NULL);
+		hLabel[i] = CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 340, ypos, 40, 20, hWnd, NULL, NULL, NULL);
 		ypos += 20;
 	}
 
@@ -359,10 +411,12 @@ void sControls(HWND hWnd)
 		handleYpos += 20;
 	}
 
-	//createButton
-	hBut = CreateWindowW(L"Button", L"Create", WS_VISIBLE | WS_CHILD | BS_BITMAP, 512, 284, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
-	SendMessageW(hBut, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hCreateImage);
+	//createButtonControl
+	hCBut = CreateWindow(L"button", L"Create", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 512, 284, 80, 120, hWnd, (HMENU)CREATE_BUTTON, NULL, NULL);
+
+	//createButtonControl
+	hBBut = CreateWindow(L"button", L"Back", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 20, 284, 80, 120, hWnd, (HMENU)BACK_BUTTON, NULL, NULL);
 
 	//On screen output 
-	hOut = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL, 20, 284, 480, 120, hWnd, NULL, NULL, NULL);
+	hOut = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL, 120, 284, 380, 120, hWnd, NULL, NULL, NULL);
 }
