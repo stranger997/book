@@ -43,6 +43,14 @@ char hpages[3];
 char booknamec[100];
 char out[2400];
 
+//User input arrays
+char key1c[K][10];
+char page1c[K][4];
+char line1c[K][3];
+char word1c[K][3];
+char outk[K][10];
+
+
 //Define handlers
 HWND hKey[K];
 HWND hPage[K];
@@ -102,11 +110,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
 // handle to window // message identifier// first message parameter// second message parameter
 LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	//User input arrays
-	char key1c[K][10];
-	char page1c[K][4];
-	char line1c[K][3];
-	char word1c[K][3];
 
 	int val;
 	switch (msg)
@@ -131,21 +134,20 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			sControls(hWnd);
 			GetWindowTextA(hname, booknamec, 100);
 			GetWindowTextA(hnpages, hpages, 3);
-			/*
-			if (key1c[i] == "" || page1c[i] == "" || line1c[i] == "" || word1c[i] = "")
-			{
-				for (int i = 0; i < K; i++)
-				{
-					SetWindowTextA(hKey[i], key1c[i]);
+			
+			for (int i = 0; i < K; i++) {
+				strcpy(outk[i], key1c[i]);
+				SetWindowTextA(hKey[i], outk[i]);
 
-					SetWindowTextA(hPage[i], page1c[i]);
+				strcpy(outk[i], page1c[i]);
+				SetWindowTextA(hPage[i], outk[i]);
 
-					SetWindowTextA(hLine[i], line1c[i]);
+				strcpy(outk[i], line1c[i]);
+				SetWindowTextA(hLine[i], outk[i]);
 
-					SetWindowTextA(hWord[i], word1c[i]);
-				}
+				strcpy(outk[i], word1c[i]);
+				SetWindowTextA(hWord[i], outk[i]);
 			}
-			*/
 
 			DestroyWindow(hNBut); 
 			DestroyWindow(hCBox);
