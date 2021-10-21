@@ -48,8 +48,6 @@ char key1c[K][10];
 char page1c[K][4];
 char line1c[K][3];
 char word1c[K][3];
-char outk[K][10];
-
 
 //Define handlers
 HWND hKey[K];
@@ -133,22 +131,13 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case NEXT_BUTTON:
 			sControls(hWnd);
 			GetWindowTextA(hname, booknamec, 100);
-			GetWindowTextA(hnpages, hpages, 3);
-			
+			GetWindowTextA(hnpages, hpages, 3);			
 			for (int i = 0; i < K; i++) {
-				strcpy(outk[i], key1c[i]);
-				SetWindowTextA(hKey[i], outk[i]);
-
-				strcpy(outk[i], page1c[i]);
-				SetWindowTextA(hPage[i], outk[i]);
-
-				strcpy(outk[i], line1c[i]);
-				SetWindowTextA(hLine[i], outk[i]);
-
-				strcpy(outk[i], word1c[i]);
-				SetWindowTextA(hWord[i], outk[i]);
+				SetWindowTextA(hKey[i], key1c[i]);
+				SetWindowTextA(hPage[i], page1c[i]);
+				SetWindowTextA(hLine[i], line1c[i]);
+				SetWindowTextA(hWord[i], word1c[i]);
 			}
-
 			DestroyWindow(hNBut); 
 			DestroyWindow(hCBox);
 			DestroyWindow(hbnlabel);
