@@ -3,19 +3,19 @@
 #endif 
 
 //includes
-#include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-#include <iomanip>
-#include <time.h>
-#include <vector>
-#include "catalog.h"
-#include <cstring>
-#include <fstream>
-#include <wchar.h>
-#include "book.h"
+#include <windows.h> //Windows GUI
+#include <stdio.h>   //Why do we need it in this file?
+#include <stdlib.h>  //Why do we need it in this file?
+#include <iostream>  //Why do we need it in this file?
+#include <string>    //Why do we need it in this file?
+#include <iomanip>   //Why do we need it in this file?
+#include <time.h>    //Why do we need it in this file?
+#include <vector>    //Why do we need it in this file?
+#include "catalog.h" //Why do we need it in this file?
+#include <cstring>   //Why do we need it in this file?
+#include <fstream>   //Why do we need it in this file?
+#include <wchar.h>   //Why do we need it in this file?
+#include "book.h"    //Why do we need it in this file?
 
 #define FILE_MENU_NEW 1
 //#define FILE_MENU_OPEN 2
@@ -27,7 +27,7 @@
 #define W 10
 #define K 4
 
-using namespace std;
+using namespace std; //Why (exactly) do we need it?
 
 // Register the window class.
 const wchar_t CLASS_NAME[] = L"myWindowClass";
@@ -35,46 +35,47 @@ const wchar_t CLASS_NAME[] = L"myWindowClass";
 
 ListedWord wallet_key[K];
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
-void AddMenus(HWND);
-void fControls(HWND);
-void sControls(HWND);
-void advControls(HWND);
-char hpages[3];
-char booknamec[100];
-char out[2400];
+void AddMenus(HWND);    //top bar menu function, declaration 
+void fControls(HWND);   //first controls function, declaration 
+void advControls(HWND); //advanced controls function, declaration 
+void sControls(HWND);   //second controls function, declaration 
+char hpages[3];         //pages quantity as character string
+char booknamec[100];    //book name, character string
+char out[2400];         // on screen output, character string
 
 //User input arrays
-char key1c[K][10];
-char page1c[K][4];
-char line1c[K][3];
-char word1c[K][3];
+char key1c[K][10];      // user keyword, character string
+char page1c[K][4];      // user keyword target page, character string
+char line1c[K][3];      // user keyword target line, character string
+char word1c[K][3];      // user keyword target inline position, character string
 
-//Define handlers
-HWND hKey[K];
-HWND hPage[K];
-HWND hLine[K];
-HWND hWord[K];
-HWND hLabel[K];
-HWND hname;//book name
-HWND hnpages;//number of pages
-HWND hOut;//output handle
-HWND hCBox;//checkbox
-HMENU hMenu;
+//Define handlers (Handlers )
+HWND hKey[K];           // user keyword, handler
+HWND hPage[K];          // user keyword target page, handler
+HWND hLine[K];          // user keyword target line, handler
+HWND hWord[K];          // user keyword target inline position, handler
+HWND hLabel[K];         // user keyword label, handler
+HWND hname;             //book name handler
+HWND hnpages;           //number of pages, handler
+HWND hOut;              //output, handler
+HWND hACBox;            //advanced menu checkbox, handler
+HWND hCCBox;            //allow custom words checkbox, handler
+HMENU hMenu;            //top bar menu FUNCTION, handler ************** <- Might help me do something like that on controls
 
 //Made them public, to allow one other function to hide or destroy them
-HWND hNBut;
-HWND hBBut;
-HWND hCBut;
-HWND hbnlabel;
-HWND hplabel;
-HWND label1;
-HWND label2;
-HWND label3;
-HWND label4;
-HWND label5;
-HWND label6;
-HWND label7;
-HWND label8;
+HWND hNBut;             // next button, handler
+HWND hBBut;             // back button, handler
+HWND hCBut;             // create button, handler
+HWND hbnlabel;          //name your book label, handler
+HWND hplabel;           //select pages quantity label, handler
+HWND label1;            //label1, handler
+HWND label2;            //label2, handler
+HWND label3;            //label3, handler
+HWND label4;            //label4, handler
+HWND label5;            //label5, handler
+HWND label6;            //label6, handler
+HWND label7;            //label7, handler
+HWND label8;            //label8, handler
 
 // handle to current instance // handle to previous instance // address of command-line string // show-window type 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
@@ -139,7 +140,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				SetWindowTextA(hWord[i], word1c[i]);
 			}
 			DestroyWindow(hNBut); 
-			DestroyWindow(hCBox);
+			DestroyWindow(hACBox);
 			DestroyWindow(hbnlabel);
 			DestroyWindow(hname);
 			DestroyWindow(hplabel);
@@ -156,11 +157,8 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			for (int i = 0; i < K; i++)
 			{
 				GetWindowTextA(hKey[i], key1c[i], 10);
-
 				GetWindowTextA(hPage[i], page1c[i], 4);
-
 				GetWindowTextA(hLine[i], line1c[i], 3);
-
 				GetWindowTextA(hWord[i], word1c[i], 3);
 			}
 			for (int i = 0; i < K; i++)
@@ -259,6 +257,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 //Window menu TOP BAR Functionality
 void AddMenus(HWND hWnd)
 {
+	//TO DO: FIX MENU Functionality
 	hMenu = CreateMenu();
 	HMENU hFileMenu = CreateMenu();
 //	HMENU hSubMenu = CreateMenu();
@@ -280,7 +279,7 @@ void fControls(HWND hWnd)
 	//nextButton
 	hNBut = CreateWindow(L"button", L"Next", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 512, 284, 80, 120, hWnd, (HMENU)NEXT_BUTTON, NULL, NULL);
 	//Load CheckBox
-	hCBox = CreateWindow(TEXT("BUTTON"), TEXT("Advanced Settings"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 250, 0, 150, 20, hWnd, NULL, NULL, NULL);
+	hACBox = CreateWindow(TEXT("BUTTON"), TEXT("Advanced Settings"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 250, 0, 150, 20, hWnd, NULL, NULL, NULL);
 	//Bookname Label
 	hbnlabel = CreateWindowW(L"static", L"Name your book:", WS_VISIBLE | WS_CHILD | SS_CENTER, 20, 3, 120, 20, hWnd, NULL, NULL, NULL);
 	//Bookname Input
@@ -293,11 +292,19 @@ void fControls(HWND hWnd)
 
 void advControls(HWND) 
 {
+	/* how many lines, how many words per line, fonttype, how big letters, where do we save */
+
 
 }
 
 void sControls(HWND hWnd)
-{
+{	
+	//TO DO: DROPDOWN WORDS
+	//TO DO: DONT LET CUSTON INPUT UNLESS ->
+	//TO DO: INPUT CONFIRMATION CHECKBOX 
+	// ???? SAVE AS OR AS IT IS?
+	//EXIT BUTTON AFTER COMPLETION
+
 	//Left Head
 	label1 = CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 46, 20, 100, 20, hWnd, NULL, NULL, NULL);
 	label2 = CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 156, 20, 40, 20, hWnd, NULL, NULL, NULL);
@@ -410,4 +417,7 @@ void sControls(HWND hWnd)
 
 	//On screen output 
 	hOut = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL, 120, 284, 380, 120, hWnd, NULL, NULL, NULL);
+
+	//Load CheckBox
+	hCCBox = CreateWindow(TEXT("BUTTON"), TEXT("Allow custom words"), WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_LEFTTEXT, 250, 260, 150, 20, hWnd, NULL, NULL, NULL);
 }
