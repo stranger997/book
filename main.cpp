@@ -123,7 +123,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR pszCmdLine, int iCmdShow
 		}
 	}
 	return (0);
-//	return (int)msg.wParam;
+	//	return (int)msg.wParam;
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
