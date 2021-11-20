@@ -1,3 +1,7 @@
+#ifndef UNICODE
+#define UNICODE
+#endif 
+
 #include <iostream>
 #include "catalog.h"
 #include <vector>
