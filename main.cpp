@@ -413,6 +413,8 @@ void advControls(HWND g_hwndApp)
 	sAFCheckbox = CreateWindow(L"button", L"Show all fonts?", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 20, 304, 120, 20, g_hwndApp, (HMENU)FONT_CHECKBOX, g_hInst, NULL);
 	// Create the static label with our sample text 
 	g_hwndText = CreateWindow(L"static", L"abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 123456789", SS_CENTER | WS_CHILD | WS_VISIBLE, 180, 284, 300, 60, g_hwndApp, (HMENU)FONT_EXAMPLE, g_hInst, NULL);
+	// Create the static label with our sample text 
+	g_hwndText = CreateWindow(L"static", L"abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 123456789", SS_CENTER | WS_CHILD | WS_VISIBLE, 180, 284, 300, 60, hwnd, (HMENU)FONT_EXAMPLE, g_hInst, NULL);
 }
 
 void sControls(HWND hWnd)
