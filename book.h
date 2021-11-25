@@ -13,6 +13,7 @@
 #include <list>
 #include <fstream>
 #define K 4
+
 struct ListedWord
 {
     std::string key;

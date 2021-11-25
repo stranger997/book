@@ -15,8 +15,8 @@
 #define FONT_BUTTON    32
 #define FONT_CHECKBOX  33
 #define FONT_EXAMPLE   34
-#define L_COMBOBOX     41
-#define R_COMBOBOX     42 
+//#define L_COMBOBOX     41
+//#define R_COMBOBOX     42 
 #define LI 48
 #define W 10
 #define K 4
@@ -206,14 +206,14 @@ LRESULT CALLBACK WndProc(HWND g_hwndApp, UINT uMsg, WPARAM wParam, LPARAM lParam
 			//TerminateProcess(fControls, NULL);
 			break;
 
-			case L_COMBOBOX:
-			{
-				switch (HIWORD(wParam))
-				{
-					// Handle notification code
-				}
-			}
-			break;
+//			case L_COMBOBOX:
+//			{
+//				switch (HIWORD(wParam))
+//				{
+//					// Handle notification code
+//				}
+//			}
+//			break;
 
 		case BACK_BUTTON:
 			fControls(g_hwndApp);
@@ -467,10 +467,10 @@ void sControls(HWND g_hwndApp)
 		ypos += 20;
 //		CreateCombo(g_hwndApp, 366, handleYpos, id);
  		hKey[i] = CreateWindow(L"COMBOBOX", NULL, WS_VISIBLE | WS_CHILD | CBS_DROPDOWN | WS_TABSTOP, 366, handleYpos, 100, 800, g_hwndApp, (HMENU)id, (HINSTANCE)GetWindowLong(g_hwndApp, GWL_HINSTANCE), NULL);
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 1");
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 2");
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 3");
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 4");
+		for (int i = 0; i < 40; i++) {
+			SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)windex);
+		}
+
 //		hKey[i] = CreateWindowEx(WS_EX_STATICEDGE, L"Combobox", L"", CBS_DROPDOWN | CBS_SORT | WS_CHILD | WS_VISIBLE | CBS_LOWERCASE | WS_VSCROLL | WS_TABSTOP, 366, handleYpos, 100, 20, g_hwndApp, HMENU(R_COMBOBOX), g_hInst, NULL);
 		hPage[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 486, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
 		hLine[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 526, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
