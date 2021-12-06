@@ -11,12 +11,11 @@
 #define NEXT_BUTTON    21
 #define CREATE_BUTTON  22
 #define BACK_BUTTON    23
+#define FINISH_BUTTON  24
 #define ADV_CHECKBOX   31
 #define FONT_BUTTON    32
 #define FONT_CHECKBOX  33
 #define FONT_EXAMPLE   34
-//#define L_COMBOBOX     41
-//#define R_COMBOBOX     42 
 #define LI 48
 #define W 10
 #define K 4
@@ -40,7 +39,7 @@ HWND hnwords;           //number of words, handler
 HWND hOut;              //output, handler
 HWND hACBox;            //advanced menu checkbox, handler
 HWND hCCBox;            //allow custom words checkbox, handler
-HMENU hMenu;            //top bar menu FUNCTION, handler ************** <- Might help me do something like that on controls
+HMENU hMenu;            //top bar menu function, handler
 //Made them public, to allow one other function to hide or destroy them
 HWND hNBut;             // next button, handler
 HWND hBBut;             // back button, handler
@@ -286,7 +285,6 @@ LRESULT CALLBACK WndProc(HWND g_hwndApp, UINT uMsg, WPARAM wParam, LPARAM lParam
 			strcat_s(out, " pages. ");
 
 			newbook.generate_book();
-			MessageBoxW(NULL, L"Generated book succesfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
 
 			for (int i = 0; i < K; i++)
 			{
@@ -299,11 +297,8 @@ LRESULT CALLBACK WndProc(HWND g_hwndApp, UINT uMsg, WPARAM wParam, LPARAM lParam
 				GetWindowTextA(hWord[i], word1c[i], 3);
 			}
 
-			MessageBoxW(NULL, L"Got keys successfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
 			newbook.fetch_keys(key1c, page1c, line1c, word1c);
-			MessageBoxW(NULL, L"fetched key succesfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
 			newbook.place_words();
-			MessageBoxW(NULL, L"Placed words successfully", L"Warning", MB_OK | MB_ICONEXCLAMATION);//DELETE
 			newbook.write_to_txt();
 
 			SetWindowTextA(hOut, out);
@@ -364,7 +359,7 @@ void AddMenus(HWND g_hwndApp)
 	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_NEW, "New Book");
 	//	AppendMenuA(hFileMenu, MF_POPUP, (UINT_PTR)hSubMenu, "Open :P");
 	AppendMenuA(hFileMenu, MF_SEPARATOR, NULL, NULL);
-	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_EXIT, "kILL");
+	AppendMenuA(hFileMenu, MF_STRING, FILE_MENU_EXIT, "Exit");
 	AppendMenuA(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, "File");
 	//	AppendMenuA(hMenu, MF_STRING, NULL, "Help");
 
@@ -416,32 +411,86 @@ void advControls(HWND hACBox)
 
 void sControls(HWND g_hwndApp)
 {
-	int ypos = -1;
-	wchar_t index[3];
-	LPCWSTR windex;
-	ypos = 40;
-	int handleYpos = 38;
-	int x = 10, y = 20, id = 300;
-
-	//Left 
+	//labels
 	label1 = CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 46, 20, 100, 20, g_hwndApp, NULL, NULL, NULL);
 	label2 = CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 156, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
 	label3 = CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 196, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
 	label4 = CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 236, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
+	label5 = CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 366, 20, 100, 20, g_hwndApp, NULL, NULL, NULL);
+	label6 = CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 476, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
+	label7 = CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 516, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
+	label8 = CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 556, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
 
+	int ypos = -1;
+	wchar_t index[3];
+	LPCWSTR windex;
+	std::string BIP_words[2048];
+	ypos = 40;
+	int handleYpos = 38;
+	int x = 10, y = 20, id = 300;
+	create_catalog(BIP_words);
+
+	for (int i = 0; i < K / 2; i++)
+	{
+		if (i < K / 2)
+		{
+			_itow_s(i + 1, index, 10);
+			windex = index;
+			hLabel[i] = CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 20, ypos, 40, 20, g_hwndApp, NULL, NULL, NULL);
+			ypos += 20;
+			hKey[i] = CreateWindow(L"COMBOBOX", NULL, WS_VISIBLE | WS_CHILD | CBS_DROPDOWN | WS_TABSTOP, 46, handleYpos, 100, 800, g_hwndApp, (HMENU)id, (HINSTANCE)GetWindowLong(g_hwndApp, GWL_HINSTANCE), NULL);
+			for (int i = 0; i < 150; i++)
+			{
+				std::wstring widestr = std::wstring(BIP_words[i].begin(), BIP_words[i].end());
+				const wchar_t* widecstr = widestr.c_str();
+				SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)widecstr);
+			}
+			hPage[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 166, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
+			hLine[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 206, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
+			hWord[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 246, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
+			handleYpos += 20;
+			++id;
+		}
+		else
+		{
+			ypos = 40;
+			handleYpos = 38;
+			for (int i = K / 2; i < K; i++)
+			{
+				_itow_s(i + 1, index, 10);
+				windex = index;
+				hLabel[i] = CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 340, ypos, 40, 20, g_hwndApp, NULL, NULL, NULL);
+				ypos += 20;
+				hKey[i] = CreateWindow(L"COMBOBOX", NULL, WS_VISIBLE | WS_CHILD | CBS_DROPDOWN | WS_TABSTOP, 366, handleYpos, 100, 800, g_hwndApp, (HMENU)id, (HINSTANCE)GetWindowLong(g_hwndApp, GWL_HINSTANCE), NULL);
+				for (int i = 0; i < 150; i++)
+				{
+					std::wstring widestr = std::wstring(BIP_words[i].begin(), BIP_words[i].end());
+					const wchar_t* widecstr = widestr.c_str();
+					SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)widecstr);
+				}
+				hPage[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 486, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
+				hLine[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 526, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
+				hWord[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 566, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
+				handleYpos += 20;
+				id++;
+			}
+		}
+	}
+	/*
+	//Left 
 	for (int i = 0; i < K / 2; i++)
 	{
 		_itow_s(i + 1, index, 10);
 		windex = index;
 		hLabel[i] = CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 20, ypos, 40, 20, g_hwndApp, NULL, NULL, NULL);
 		ypos += 20;
-		//CreateCombo(g_hwndApp, 46, handleYpos, id);
 		hKey[i] = CreateWindow(L"COMBOBOX", NULL, WS_VISIBLE | WS_CHILD | CBS_DROPDOWN | WS_TABSTOP, 46, handleYpos, 100, 800, g_hwndApp, (HMENU)id, (HINSTANCE)GetWindowLong(g_hwndApp, GWL_HINSTANCE), NULL);
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 1");
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 2");
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 3");
-		SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)L"Item 4");
-//		hKey[i] = CreateWindowEx(WS_EX_STATICEDGE, L"Combobox", L"", CBS_SIMPLE | CBS_SORT | WS_CHILD | WS_VISIBLE | CBS_LOWERCASE | WS_VSCROLL | WS_TABSTOP, 46, handleYpos, 100, 20, g_hwndApp, HMENU(L_COMBOBOX), g_hInst, NULL);
+		for (int i = 0; i < 150; i++)
+		{
+			std::wstring widestr = std::wstring(BIP_words[i].begin(), BIP_words[i].end());
+			const wchar_t* widecstr = widestr.c_str();
+			SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)widecstr);
+		}
 		hPage[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 166, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
 		hLine[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 206, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
 		hWord[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 246, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
@@ -450,34 +499,28 @@ void sControls(HWND g_hwndApp)
 	}
 
 	//Right 
-
 	ypos = 40;
 	handleYpos = 38;
-
-	label5 = CreateWindowW(L"static", L"Key", WS_VISIBLE | WS_CHILD | SS_CENTER, 366, 20, 100, 20, g_hwndApp, NULL, NULL, NULL);
-	label6 = CreateWindowW(L"static", L"Page", WS_VISIBLE | WS_CHILD | SS_CENTER, 476, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
-	label7 = CreateWindowW(L"static", L"Line", WS_VISIBLE | WS_CHILD | SS_CENTER, 516, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
-	label8 = CreateWindowW(L"static", L"Word", WS_VISIBLE | WS_CHILD | SS_CENTER, 556, 20, 40, 20, g_hwndApp, NULL, NULL, NULL);
-
 	for (int i = K / 2; i < K; i++)
 	{
 		_itow_s(i + 1, index, 10);
 		windex = index;
 		hLabel[i] = CreateWindowExW(NULL, L"static", windex, WS_VISIBLE | WS_CHILD, 340, ypos, 40, 20, g_hwndApp, NULL, NULL, NULL);
 		ypos += 20;
-//		CreateCombo(g_hwndApp, 366, handleYpos, id);
- 		hKey[i] = CreateWindow(L"COMBOBOX", NULL, WS_VISIBLE | WS_CHILD | CBS_DROPDOWN | WS_TABSTOP, 366, handleYpos, 100, 800, g_hwndApp, (HMENU)id, (HINSTANCE)GetWindowLong(g_hwndApp, GWL_HINSTANCE), NULL);
-		for (int i = 0; i < 40; i++) {
-			SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)windex);
+		hKey[i] = CreateWindow(L"COMBOBOX", NULL, WS_VISIBLE | WS_CHILD | CBS_DROPDOWN | WS_TABSTOP, 366, handleYpos, 100, 800, g_hwndApp, (HMENU)id, (HINSTANCE)GetWindowLong(g_hwndApp, GWL_HINSTANCE), NULL);
+		for (int i = 0; i < 150; i++)
+		{
+			std::wstring widestr = std::wstring(BIP_words[i].begin(), BIP_words[i].end());
+			const wchar_t* widecstr = widestr.c_str();
+			SendMessage(GetDlgItem(g_hwndApp, id), CB_ADDSTRING, 0, (LPARAM)widecstr);
 		}
-
-//		hKey[i] = CreateWindowEx(WS_EX_STATICEDGE, L"Combobox", L"", CBS_DROPDOWN | CBS_SORT | WS_CHILD | WS_VISIBLE | CBS_LOWERCASE | WS_VSCROLL | WS_TABSTOP, 366, handleYpos, 100, 20, g_hwndApp, HMENU(R_COMBOBOX), g_hInst, NULL);
 		hPage[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 486, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
 		hLine[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 526, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
 		hWord[i] = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | WS_TABSTOP, 566, handleYpos, 20, 20, g_hwndApp, (HMENU)++id, NULL, NULL);
 		handleYpos += 20;
 		id++;
 	}
+	*/
 	//Buttons
 	// 	//createButtonControl
 	hCBut = CreateWindow(L"button", L"Create", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | WS_TABSTOP, 512, 284, 80, 120, g_hwndApp, (HMENU)CREATE_BUTTON, NULL, NULL);
