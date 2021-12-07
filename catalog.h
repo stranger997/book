@@ -115,6 +115,4 @@ void create_catalog(string catalogue[2048])
             }
         }
     }
-
-
 }

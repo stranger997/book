@@ -24,16 +24,12 @@ struct ListedWord
 
 class Book {
 
-
-
 private:
     std::string bookname; //name of the book. Will be the file name.
     int pages;
     int lines;
     int words;
     int keysize;
-
-
 
 public:
     std::vector<ListedWord> Keylist; // list of user keys
@@ -103,9 +99,6 @@ public:
                 }
             }
         }
-
-
-
     }
 
     //Getting keys into keylist
@@ -125,11 +118,8 @@ public:
             keyword.word_loc--;
 
             Keylist.push_back(keyword);
-
         }
-
     }
-
 
     //Errors check // UNDER CONSTRUCTION
     // Error codes:
@@ -165,15 +155,8 @@ public:
                 }
             }
             if (!found) return 2;
-
-
         }
-
     }
-
-
-
-
 
     //Placing words in text
     void place_words()
@@ -185,10 +168,7 @@ public:
         {
             vecloc = Keylist.at(it).page_loc * lines * words + Keylist.at(it).line_loc * words + Keylist.at(it).word_loc;
             Wordlist.at(vecloc).key = Keylist.at(it).key;
-
         }
-
-
     }
 
     //Write to .txt. Pretty self explanatory
@@ -213,8 +193,5 @@ public:
                 out_file << std::endl;
             }
         }
-
-
     }
-
 };
